@@ -70,7 +70,7 @@ def getDriver(debug: str):
         options.add_argument("--headless")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
-        driver = webdriver.Chrome(executable_path= config["CHROMEDRIVER_PATH"], options = options)
+        driver = webdriver.Chrome(executable_path= config["CHROMEDRIVER_PATH"], chrome_options= options)
     return driver
 
 def isThereNextPage(driver: Chrome):
