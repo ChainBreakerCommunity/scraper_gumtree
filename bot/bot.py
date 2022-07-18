@@ -27,6 +27,8 @@ def enterGumTree(driver: Chrome):
     logger.info("Current URL: " + driver.current_url)
     time.sleep(4)
 
+    locator = (By.ID, "email")
+    email_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located(locator))
     #locator = (By.ID, "onetrust-accept-btn-handler")
     #accept_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located(locator))
     
@@ -35,7 +37,7 @@ def enterGumTree(driver: Chrome):
     #accept_button.click()
 
     # Get email and password inputs.
-    email_input = driver.find_element(By.ID, "email")
+    #email_input = driver.find_element(By.ID, "email")
     password_input = driver.find_element(By.ID, "fld-password")
 
     # Fill inputs.
