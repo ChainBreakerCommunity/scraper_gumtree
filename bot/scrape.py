@@ -61,7 +61,7 @@ def getText(driver: Chrome) -> str:
         if p.get_attribute("itemprop") == "description":
             return p.text.replace("\n", " ")
 
-def getLocation(driver: Chrome) -> tuple[str, str, str]:
+def getLocation(driver: Chrome):
     locations = driver.find_elements(By.TAG_NAME, "h4")
     for l in locations:
         if l.get_attribute("itemprop") == "addressLocality":
