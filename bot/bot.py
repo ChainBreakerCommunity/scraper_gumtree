@@ -52,7 +52,7 @@ def enterGumTree(driver: Chrome):
             break
         
     # Wait.
-    time.sleep(5)
+    #time.sleep(5)
     return driver
 
 def getDriver(debug: str):
@@ -64,7 +64,7 @@ def getDriver(debug: str):
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument('--disable-blink-features=AutomationControlled')
     if debug == "TRUE":
-        driver = webdriver.Chrome(executable_path="./chromedriver2.exe", options = options)
+        driver = webdriver.Chrome(executable_path="./chromedriver.exe", options = options)
     else:
         options.binary_location = config["GOOGLE_CHROME_BIN"]
         options.add_argument("--headless")
@@ -156,7 +156,6 @@ def main():
             # Save values in dictionary
             dicc = {}
             dicc["url"] = url
-            dicc["isFeature"] = bot.scrape.isFeature(ad)
 
             # Scrap ad.
             ad_record = bot.scrape.scrap_ad_link(client, driver, dicc)

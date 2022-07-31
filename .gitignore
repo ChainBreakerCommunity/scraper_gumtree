@@ -1,7 +1,7 @@
 # Ignore files
 chromedriver.exe
 chromedriver2.exe
-
+ss.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

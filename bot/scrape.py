@@ -5,8 +5,13 @@ from selenium.webdriver.common.by import By
 import time
 import datetime
 import bot.constants as ct
+
 from logger.logger import get_logger
 logger = get_logger(__name__, level = "DEBUG", stream = True)
+
+import ipfshttpclient
+ipfs_client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+
 
 def clean_string(string, no_space = False):   
     """
@@ -34,14 +39,21 @@ def getPhone(driver: Chrome) -> str:
             pass
 
     # Wait a second.
-    time.sleep(1)
+    MAX_TRIES = 100
+    tries = 0
+    while tries < MAX_TRIES:
+        time.sleep(10)
 
-    # Get all class names with phone number title
-    numbers = driver.find_elements(By.CLASS_NAME, "seller-phone-number-title")
-    for n in numbers:
-        if len(n.text) > 0:
-            phonenumber = n.text
-            return phonenumber
+        # Get all class names with phone number title
+        numbers = driver.find_elements(By.CLASS_NAME, "seller-phone-number-title")
+        for n in numbers:
+            if len(n.text) > 0:
+                phonenumber = n.text
+                if "X" not in phonenumber:
+                    return phonenumber
+                else:
+                    tries += 1
+                    break
     return ""
 
 def getExternalWebsite(driver: Chrome) -> str:
@@ -103,20 +115,16 @@ def getDateScrape() -> datetime.datetime:
 def dateToString(date: datetime.datetime):
     return datetime.datetime.strftime(date, "%Y-%m-%d")
 
-def isVerified():
-    return ""
-
-def isFeature(ad):
-    try: 
-        ad.find_element(By.CLASS_NAME, "ribbon-featured")
-        return "1"
-    except: 
-        return "0"
+def getScreenshot(driver: Chrome):
+    driver.execute_script("window.scrollTo(0,0)")
+    driver.save_screenshot("ss.png")
+    res = ipfs_client.add("ss.png")
+    return res["Hash"]
 
 def scrap_ad_link(client: ChainBreakerScraper, driver: Chrome, dicc: dict):
     phone = getPhone(driver)
     email = ""
-    if phone == "":
+    if phone == "" or "X" in phone:
         logger.warning("Phone not found! Skipping this ad.")
         return None
 
@@ -131,10 +139,6 @@ def scrap_ad_link(client: ChainBreakerScraper, driver: Chrome, dicc: dict):
 
     date_scrap = getDateScrape()
     website = ct.SITE_NAME
-    
-    verified_ad = ""
-    prepayment = ""
-    promoted_ad = dicc["isFeature"] # feature
 
     external_website = getExternalWebsite(driver)
     reviews_website = ""
@@ -149,13 +153,12 @@ def scrap_ad_link(client: ChainBreakerScraper, driver: Chrome, dicc: dict):
     nationality = getNationality()
 
     age = getAge()
-    
+    screenshot = getScreenshot()
     #print(author, language, link, id_page, title, text, category, first_post_date, date_scrap, website, phone, country, region, city, place, email, verified_ad, prepayment, promoted_ad)
     #        external_website, reviews_website, comments, latitude, longitude, ethnicity, nationality, age)
     # Upload ad in database.
-    data, res = client.insert_ad(author, language, link, id_page, title, text, category, first_post_date, date_scrap, website, phone, country, region, city, place, email, verified_ad, prepayment, promoted_ad, 
-            external_website, reviews_website, comments, latitude, longitude, ethnicity, nationality, age) # Eliminar luego
-    status_code = res.status_code
+    data, res = client.insert_ad(author, language, link, id_page, title, text, category, first_post_date, date_scrap, website, phone, country, region, city, place, email,
+            external_website, reviews_website, comments, latitude, longitude, ethnicity, nationality, age, screenshot) # Eliminar luego
 
     # Log results.
     logger.info("Data sent to server: ")
