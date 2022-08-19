@@ -1,7 +1,7 @@
+import datetime
 import bot.constants as ct
 import sys
 import time 
-import re
 import bot.scrape
 
 from selenium import webdriver
@@ -81,9 +81,13 @@ def isThereNextPage(driver: Chrome):
     return False
 
 def main():
+
+    start_time = datetime.datetime.now()
+
     endpoint = config["ENDPOINT"]
     user = config["USERNAME"]
     password = config["PASSWORD"]
+    max_time = config["MAX_TIME"]
 
     logger.warning("Scraper initialized.")
 
@@ -116,6 +120,15 @@ def main():
         # Get ads.
         ads = driver.find_elements(By.CLASS_NAME, "listing-link")
         for ad in ads: 
+
+            # Check time limit.
+            current_time = datetime.datetime.now()
+            delta = current_time - start_time
+            sec = delta.total_seconds()
+            mins = sec / 60
+            if mins >= max_time:
+                sys.exit()
+
             url = ad.get_attribute("href") 
             if client.get_status() != 200:
                 logger.error("Endpoint is offline. Service stopped.", exc_info = True)

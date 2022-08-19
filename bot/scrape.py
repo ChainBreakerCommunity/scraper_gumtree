@@ -9,8 +9,8 @@ import bot.constants as ct
 from logger.logger import get_logger
 logger = get_logger(__name__, level = "DEBUG", stream = True)
 
-import ipfshttpclient
-ipfs_client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+#import ipfshttpclient
+#ipfs_client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 
 
 def clean_string(string, no_space = False):   
@@ -116,6 +116,7 @@ def dateToString(date: datetime.datetime):
     return datetime.datetime.strftime(date, "%Y-%m-%d")
 
 def getScreenshot(driver: Chrome):
+    return ""
     driver.execute_script("window.scrollTo(0,0)")
     driver.save_screenshot("ss.png")
     res = ipfs_client.add("ss.png")
